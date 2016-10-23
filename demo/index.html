@@ -1,0 +1,163 @@
+<!doctype html>
+<html>
+  <head>
+    <title>paper-slides demo</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+    <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+    <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+
+    <link rel="import" href="../paper-slides.html">
+
+    <style is="custom-style" include="demo-pages-shared-styles">
+    </style>
+
+    <style>
+      paper-slides {
+        height: 720px;
+        --paper-slides-controls-color: #000000;
+        --paper-slides-arrows: {
+          color: #000;
+        }
+      }
+      .vertical-section-container.centered {
+        max-width: 1320px !important;
+      }
+    </style>
+  </head>
+  <body>
+
+    <div class="vertical-section-container centered">
+      <h3>Basic paper-slides</h3>
+      <demo-snippet>
+        <template>
+          <paper-slides>
+            <paper-slide href="#1" src="http://placehold.it/1280x720/4285f4/ffffff"></paper-slide>
+            <paper-slide href="#2" src="http://placehold.it/1280x720/34a853/ffffff"></paper-slide>
+            <paper-slide href="#3" src="http://placehold.it/1280x720/fbbc05/ffffff"></paper-slide>
+            <paper-slide href="#4" src="http://placehold.it/1280x720/ea4335/ffffff"></paper-slide>
+          </paper-slides>
+        </template>
+      </demo-snippet>
+    </div>
+
+    <div class="vertical-section-container centered">
+      <h3>paper-slides without controls</h3>
+      <demo-snippet>
+        <template>
+          <paper-slides no-bullets no-arrows>
+            <paper-slide href="#1" src="http://placehold.it/1280x720/4285f4/ffffff"></paper-slide>
+            <paper-slide href="#2" src="http://placehold.it/1280x720/34a853/ffffff"></paper-slide>
+            <paper-slide href="#3" src="http://placehold.it/1280x720/fbbc05/ffffff"></paper-slide>
+            <paper-slide href="#4" src="http://placehold.it/1280x720/ea4335/ffffff"></paper-slide>
+          </paper-slides>
+        </template>
+      </demo-snippet>
+    </div>
+
+    <div class="vertical-section-container centered">
+      <h3>paper-slides without touch</h3>
+      <demo-snippet>
+        <template>
+          <paper-slides no-touch>
+            <paper-slide href="#1" src="http://placehold.it/1280x720/4285f4/ffffff"></paper-slide>
+            <paper-slide href="#2" src="http://placehold.it/1280x720/34a853/ffffff"></paper-slide>
+            <paper-slide href="#3" src="http://placehold.it/1280x720/fbbc05/ffffff"></paper-slide>
+            <paper-slide href="#4" src="http://placehold.it/1280x720/ea4335/ffffff"></paper-slide>
+          </paper-slides>
+        </template>
+      </demo-snippet>
+    </div>
+
+    <div class="vertical-section-container centered">
+      <h3>Customize your slides!</h3>
+      <demo-snippet>
+        <template>
+          <style is="custom-style">
+            paper-slides.black {
+              --paper-slides-controls-color: #222;
+              --paper-radio-bullet-padding: 4px;
+              --paper-slides-arrows: {
+                top: auto;
+              }
+              --paper-slides-bullets: {
+                left: auto;
+                width: 30px;
+                bottom: auto;
+                top: 50%;
+                -webkit-transform: translateY(-50%);
+                transform: translateY(-50%);
+              }
+            }
+
+            paper-slides.black paper-slide {
+              --paper-slide-content: {
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 80px;
+                color: #fff;
+              }
+            }
+
+            paper-slides.black paper-slide h1 {
+              font-size: 48px;
+              -webkit-transition: all .16s ease-out .16s;
+              transition: all .16s ease-out .16s;
+              -webkit-transform: translateY(50px);
+              transform: translateY(50px);
+              opacity: 0;
+            }
+
+            paper-slides.black paper-slide[selected] h1 {
+              -webkit-transform: none;
+              transform: none;
+              opacity: 1;
+            }
+          </style>
+
+          <paper-slides class="black">
+            <paper-slide href="#1" src="http://placehold.it/1280x720/4285f4/ffffff">
+              <h1>Slide 1</h1>
+            </paper-slide>
+            <paper-slide href="#2" src="http://placehold.it/1280x720/34a853/ffffff">
+              <h1>Slide 2</h1>
+            </paper-slide>
+            <paper-slide href="#3" src="http://placehold.it/1280x720/fbbc05/ffffff">
+              <h1>Slide 3</h1>
+            </paper-slide>
+            <paper-slide href="#4" src="http://placehold.it/1280x720/ea4335/ffffff">
+              <h1>Slide 4</h1>
+            </paper-slide>
+          </paper-slides>
+        </template>
+      </demo-snippet>
+    </div>
+
+    <div class="vertical-section-container centered">
+      <h3>Can automatically slide</h3>
+      <demo-snippet>
+        <template>
+          <paper-slides id="autoSlider" auto-slide="5000">
+            <paper-slide href="#1" src="http://placehold.it/1280x720/4285f4/ffffff"></paper-slide>
+            <paper-slide href="#2" src="http://placehold.it/1280x720/34a853/ffffff"></paper-slide>
+            <paper-slide href="#3" src="http://placehold.it/1280x720/fbbc05/ffffff"></paper-slide>
+            <paper-slide href="#4" src="http://placehold.it/1280x720/ea4335/ffffff"></paper-slide>
+          </paper-slides>
+          <button onclick="selectSpeed(0)">OFF</button>
+          <button onclick="selectSpeed(1000)">1000MS</button>
+          <button onclick="selectSpeed(5000)">5000MS</button>
+          <script>
+            var autoSlider = document.getElementById('autoSlider');
+            function selectSpeed(speed){
+              autoSlider.autoSlide = speed;
+            }
+          </script>
+        </template>
+      </demo-snippet>
+    </div>
+
+  </body>
+</html>

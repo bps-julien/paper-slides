@@ -1,0 +1,125 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-image/iron-image.html">
+
+<!--
+`paper-slide`
+-->
+
+<dom-module id="paper-slide">
+  <template>
+    <style>
+      :host {
+        display: block;
+        position: absolute;
+        overflow: hidden;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+      }
+
+      iron-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+      }
+
+      .slide-content {
+        position: relative;
+        z-index: 1;
+        padding: 16px;
+        text-align: center;
+        @apply(--paper-slide-content);
+      }
+    </style>
+
+    <a id="link" href="{{href}}">
+      <iron-image src="{{src}}" preload sizing="{{sizing}}"></iron-image>
+    </a>
+
+    <div class="slide-content">
+      <content></content>
+    </div>
+
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'paper-slide',
+
+      hostAttributes: {
+        tabindex: -1
+      },
+
+      properties: {
+
+        /**
+        * Source of the image displayed in the slide
+        */
+        src: {
+          type: String,
+          reflectToAttribute: true
+        },
+
+        /**
+        * Navigate to this link if the slide is clicked
+        */
+        href: {
+          type: String,
+          reflectToAttribute: true
+        },
+
+        /**
+        * True if the slide is the selected slide of the slider
+        */
+        selected: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true,
+          observer: '_selectedChanged',
+        },
+
+        /**
+        * Sizing method used by the iron-image component
+        */
+        sizing: {
+          type: String,
+          value: 'cover'
+        }
+
+      },
+
+      attached: function(){
+        this.fire('slide-added');
+        this.$.link.addEventListener('mousedown', function(e){ e.preventDefault(); });
+        this.$.link.addEventListener('click', this._clickLink.bind(this));
+      },
+
+      detached: function(){
+        if(this.slider) this.slider.slidesChanged();
+      },
+
+      _bindToSlider: function(slider){
+        if(slider) this.slider = slider;
+      },
+
+      _selectedChanged: function(selected){
+        this.$.link.setAttribute('tabindex', selected ? 0 : -1);
+      },
+
+      _clickLink: function(e){
+        if(!this.clickable) e.preventDefault();
+        this.clickable = false;
+      },
+
+      _activeLink: function(){
+        this.clickable = true;
+        this.$.link.click();
+      }
+
+    });
+  </script>
+</dom-module>

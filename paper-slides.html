@@ -1,0 +1,303 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="./paper-slide.html">
+<link rel="import" href="../paper-radio-button/paper-radio-button.html">
+<link rel="import" href="../paper-radio-group/paper-radio-group.html">
+<link rel="import" href="../iron-icons/hardware-icons.html">
+
+<!--
+`paper-slides`
+Simple image slider
+
+@demo demo/index.html 
+-->
+
+<dom-module id="paper-slides">
+  <template>
+    <style>
+      :host {
+        display: block;
+        position: relative;
+        overflow: hidden;
+        --paper-slides-controls-color: #fff;
+        --paper-radio-bullet-padding: 0;
+      }
+
+      #sliderContainer,
+      #slider {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+      }
+
+      #slider {
+        will-change: transform;
+      }
+
+      #sliderContainer {
+        overflow: hidden;
+      }
+
+      paper-radio-group.bullets {
+        position: absolute;
+        z-index: 1;
+        left: 0;
+        right: 0;
+        bottom: 30px;
+        text-align: center;
+        --paper-radio-group-item-padding: var(--paper-radio-bullet-padding);
+        @apply(--paper-slides-bullets);
+      }
+
+      paper-radio-button.bullet {
+        --paper-radio-button-unchecked-color: var(--paper-slides-controls-color);
+        --paper-radio-button-checked-color: var(--paper-slides-controls-color);
+      }
+
+      paper-icon-button.arrow {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        margin: auto;
+        height: 64px;
+        width: 64px;
+        z-index: 2;
+        color: var(--paper-slides-controls-color, #fff);
+        @apply(--paper-slides-arrows);
+      }
+
+      paper-icon-button.previous {
+        left: 16px;
+      }
+
+      paper-icon-button.next {
+        right: 16px;
+      }
+    </style>
+
+    <div id="sliderContainer">
+      <div id="slider">
+        <content id="slides"></content>
+      </div>
+    </div>
+    
+    <template is="dom-if" if={{!noArrows}}>
+      <paper-icon-button class="arrow previous" icon="hardware:keyboard-arrow-left" on-tap="previous"></paper-icon-button>
+      <paper-icon-button class="arrow next" icon="hardware:keyboard-arrow-right" on-tap="next"></paper-icon-button>
+    </template>
+    
+    <template is="dom-if" if={{!noBullets}}>
+      <paper-radio-group class="bullets" selected="{{selected}}">
+        <template is="dom-repeat" items={{bullets}} as=bullet index-as=index>
+          <paper-radio-button class="bullet" name="{{bullet}}"></paper-radio-button>
+        </template>
+      </paper-radio-group>
+    </template>
+
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'paper-slides',
+
+      listeners: {
+        'slide-added': 'slidesChanged',
+      },
+
+      properties: {
+
+        /**
+        * Array of all the paper-slide components contained in the slider.
+        */
+        slides: {
+          type: Array,
+          value: []
+        },
+
+        /**
+        * The index of the selected component. Starts at 1 instead of 0.
+        */
+        selected: {
+          type: Number,
+          value: 1,
+          observer: '_selectSlide'
+        },
+
+        /**
+        * The selected paper-slide component.
+        */
+        selectedItem: {
+          type: Object,
+          value: null
+        },
+
+        /**
+        * The duration of the transition between slides in milliseconds.
+        */
+        transitionDuration: {
+          type: Number,
+          value: 160
+        },
+
+        capture: {
+          type: Boolean,
+          reflectToAttribute: true,
+          value: false
+        },
+
+        trigger: {
+          type: Number,
+          value: .15
+        },
+
+        noArrows: {
+          type: Boolean,
+          reflectToAttribute: true,
+          value: false
+        },
+
+        noBullets: {
+          type: Boolean,
+          reflectToAttribute: true,
+          value: false
+        },
+
+        noTouch: {
+          type: Boolean,
+          reflectToAttribute: true,
+          value: false,
+          observer: '_touchChanged'
+        },
+
+        autoSlide: {
+          type: Number,
+          reflectToAttribute: true,
+          value: 0,
+          observer: '_autoSlideChanged'
+        }
+
+      },
+
+      ready: function(){
+        this.$.sliderContainer.addEventListener('mouseenter', (function(){
+          this.mouseIn = true;
+        }).bind(this));
+        this.$.sliderContainer.addEventListener('mouseleave', (function(){
+          this.mouseIn = false;
+        }).bind(this));
+      },
+
+      _touchChanged: function(current, old){
+        if(current){
+          this.$.sliderContainer.removeEventListener('touchstart', this._touchStart.bind(this));
+          window.removeEventListener('touchmove', this._touchMove.bind(this));
+          window.removeEventListener('touchend', this._touchEnd.bind(this));
+          this.$.sliderContainer.removeEventListener('mousedown', this._touchStart.bind(this));
+          window.removeEventListener('mousemove', this._touchMove.bind(this));
+          window.removeEventListener('mouseup', this._touchEnd.bind(this));
+          document.removeEventListener('mouseleave', this._touchEnd.bind(this));
+        }else{
+          this.$.sliderContainer.addEventListener('touchstart', this._touchStart.bind(this));
+          window.addEventListener('touchmove', this._touchMove.bind(this));
+          window.addEventListener('touchend', this._touchEnd.bind(this));
+          this.$.sliderContainer.addEventListener('mousedown', this._touchStart.bind(this));
+          window.addEventListener('mousemove', this._touchMove.bind(this));
+          window.addEventListener('mouseup', this._touchEnd.bind(this));
+          document.addEventListener('mouseleave', this._touchEnd.bind(this));
+        }
+      },
+
+      _autoSlideChanged: function(current, old){
+        clearInterval(this.autoSlideInt);
+        if(!isNaN(current) && current > 0){
+          this.autoSlideInt = setInterval((function(){
+            if(!this.capture && !this.mouseIn) this.next();
+          }).bind(this), current);
+        }
+      },
+
+      _touchStart: function(e){
+        if (!this.capture) {
+          this.moved = false;
+          this._setMax();
+          this.newIndex = this.selected;
+          this.$.slider.style.transition = 'none';
+          this.start = e.pageX || e.touches[0].pageX;
+          this.capture = true;
+        }
+      },
+
+      _touchEnd: function(e){
+        if (this.capture) {
+          this.capture = false;
+          if(!this.moved) this.slides[this.selected - 1]._activeLink();
+          if(this.selected === this.newIndex) this._selectSlide(this.selected);
+          else this.selected = this.newIndex;
+        }
+      },
+
+      _touchMove: function(e){
+        this.moved = true;
+        requestAnimationFrame((function(){ 
+          if (this.capture) {
+            var pos = e.pageX || e.touches[0].pageX;
+            var current = pos - this.start;
+            var move = ((this.selected - 1) * -this.clientWidth) + current;
+            if (move <= 0 && Math.abs(move) < this.max) {
+              if (Math.abs(current) > (this.trigger * this.clientWidth)) this.newIndex = this.selected + (current <= 0 ? 1 : -1);
+              if(this.newIndex <= 0) this.newIndex = 1;
+              else if(this.newIndex > this.slides.length) this.newIndex = this.slides.length;
+              this.$.slider.style.transform = 'translateX(' + move + 'px)';
+            }
+          }
+        }).bind(this));
+      },
+
+      slidesChanged: function(){
+        this.slides = this.querySelectorAll('paper-slide');
+        this._positionSlides();
+        this.fire('slides-changed', { slides: this.slides });
+      },
+
+      _selectSlide: function(current){
+        if(isNaN(current) || current < 1 || current > this.slides.length) return;
+        if(this.selectedItem) this.selectedItem.selected = false;
+        this.selectedItem = this.slides[current - 1];
+        this.selectedItem.selected = true;
+        this.$.slider.style.transition = 'transform ' + this.transitionDuration + 'ms';
+        this.$.slider.style.transform = 'translateX(-' + ((current - 1) * 100) + '%)';
+        this.fire('select', { selectedIndex: current });
+      },
+
+      _positionSlides: function(){
+        var bullets = [];
+        for(var i = 0; i < this.slides.length; i++){
+          var slide = this.slides[i];
+          var index = i + 1;
+          slide.style.left = (i * 100) + '%';
+          slide._bindToSlider(this);
+          bullets.push(index);
+        }
+        this.bullets = bullets;
+        if(this.bullets.length > 0 && this.selected > this.bullets.length) this.selected = this.bullets.length;
+      },
+
+      _setMax: function(){
+        this.max = (this.slides.length - 1) * this.clientWidth;
+      },
+
+      previous: function(){
+        if(this.selected > 1) this.selected--;
+        else this.selected = this.slides.length;
+      },
+
+      next: function(){
+        if(this.selected < this.slides.length) this.selected++;
+        else this.selected = 1;
+      },
+
+    });
+  </script>
+</dom-module>

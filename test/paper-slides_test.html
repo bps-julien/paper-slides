@@ -1,0 +1,37 @@
+<!doctype html>
+
+<html>
+  <head>
+    <title>paper-slides test</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../web-component-tester/browser.js"></script>
+
+    <link rel="import" href="../paper-slides.html">
+  </head>
+  <body>
+
+    <test-fixture id="basic">
+      <template>
+        <paper-slides>
+          <paper-slide href="#1" src="http://placehold.it/1280x720/4285f4/ffffff"></paper-slide>
+          <paper-slide href="#2" src="http://placehold.it/1280x720/34a853/ffffff"></paper-slide>
+          <paper-slide href="#3" src="http://placehold.it/1280x720/fbbc05/ffffff"></paper-slide>
+          <paper-slide href="#4" src="http://placehold.it/1280x720/ea4335/ffffff"></paper-slide>
+        </paper-slides>
+      </template>
+    </test-fixture>
+
+    <script>
+      suite('paper-slides', function() {
+
+        test('instantiating the element works', function() {
+          var element = fixture('basic');
+          assert.equal(element.is, 'paper-slides');
+        });
+
+      });
+    </script>
+  </body>
+</html>

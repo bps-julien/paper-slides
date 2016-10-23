@@ -83,14 +83,14 @@ Simple image slider
     </div>
     
     <template is="dom-if" if={{!noArrows}}>
-      <paper-icon-button class="arrow previous" icon="hardware:keyboard-arrow-left" on-tap="previous"></paper-icon-button>
-      <paper-icon-button class="arrow next" icon="hardware:keyboard-arrow-right" on-tap="next"></paper-icon-button>
+      <paper-icon-button class="arrow previous" icon="hardware:keyboard-arrow-left" on-tap="previous" on-focus="focus" on-blur="blur"></paper-icon-button>
+      <paper-icon-button class="arrow next" icon="hardware:keyboard-arrow-right" on-tap="next" on-focus="focus" on-blur="blur"></paper-icon-button>
     </template>
     
     <template is="dom-if" if={{!noBullets}}>
       <paper-radio-group class="bullets" selected="{{selected}}">
         <template is="dom-repeat" items={{bullets}} as=bullet index-as=index>
-          <paper-radio-button class="bullet" name="{{bullet}}"></paper-radio-button>
+          <paper-radio-button class="bullet" name="{{bullet}}" on-focus="focus" on-blur="blur"></paper-radio-button>
         </template>
       </paper-radio-group>
     </template>
@@ -141,6 +141,12 @@ Simple image slider
           value: 160
         },
 
+        hasFocus: {
+          type: Boolean,
+          reflectToAttribute: true,
+          value: false
+        },
+
         capture: {
           type: Boolean,
           reflectToAttribute: true,
@@ -181,10 +187,10 @@ Simple image slider
       },
 
       ready: function(){
-        this.$.sliderContainer.addEventListener('mouseenter', (function(){
+        this.addEventListener('mouseenter', (function(){
           this.mouseIn = true;
         }).bind(this));
-        this.$.sliderContainer.addEventListener('mouseleave', (function(){
+        this.addEventListener('mouseleave', (function(){
           this.mouseIn = false;
         }).bind(this));
       },
@@ -213,7 +219,7 @@ Simple image slider
         clearInterval(this.autoSlideInt);
         if(!isNaN(current) && current > 0){
           this.autoSlideInt = setInterval((function(){
-            if(!this.capture && !this.mouseIn) this.next();
+            if(!this.capture && !this.mouseIn && !this.hasFocus) this.next();
           }).bind(this), current);
         }
       },
@@ -258,6 +264,7 @@ Simple image slider
       slidesChanged: function(){
         this.slides = this.querySelectorAll('paper-slide');
         this._positionSlides();
+        this._selectSlide(this.selected);
         this.fire('slides-changed', { slides: this.slides });
       },
 
@@ -296,6 +303,14 @@ Simple image slider
       next: function(){
         if(this.selected < this.slides.length) this.selected++;
         else this.selected = 1;
+      },
+
+      blur: function(){
+        this.hasFocus = false;
+      },
+
+      focus: function(){
+        this.hasFocus = true;
       },
 
     });

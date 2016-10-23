@@ -35,7 +35,7 @@
       }
     </style>
 
-    <a id="link" href="{{href}}">
+    <a id="link" href="{{href}}" on-focus="focus" on-blur="blur">
       <iron-image src="{{src}}" preload sizing="{{sizing}}"></iron-image>
     </a>
 
@@ -118,7 +118,15 @@
       _activeLink: function(){
         this.clickable = true;
         this.$.link.click();
-      }
+      },
+
+      blur: function(){
+        if(this.slider) this.slider.blur();
+      },
+
+      focus: function(){
+        if(this.slider) this.slider.focus();
+      },
 
     });
   </script>

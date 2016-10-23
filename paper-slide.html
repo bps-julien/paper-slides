@@ -35,8 +35,8 @@
       }
     </style>
 
-    <a id="link" href="{{href}}" on-focus="focus" on-blur="blur">
-      <iron-image src="{{src}}" preload sizing="{{sizing}}"></iron-image>
+    <a id="link" aria-label$="{{title}}" href="{{href}}" on-focus="focus" on-blur="blur">
+      <iron-image alt$="{{title}}" src="{{src}}" preload sizing="{{sizing}}"></iron-image>
     </a>
 
     <div class="slide-content">
@@ -88,6 +88,11 @@
         sizing: {
           type: String,
           value: 'cover'
+        },
+
+        title: {
+          type: String,
+          reflectToAttribute: true
         }
 
       },
@@ -108,6 +113,7 @@
 
       _selectedChanged: function(selected){
         this.$.link.setAttribute('tabindex', selected ? 0 : -1);
+        if(this.slider && this.slider.hasFocus && selected) this.$.link.focus();
       },
 
       _clickLink: function(e){

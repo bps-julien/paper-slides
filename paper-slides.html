@@ -83,14 +83,14 @@ Simple image slider
     </div>
     
     <template is="dom-if" if={{!noArrows}}>
-      <paper-icon-button class="arrow previous" icon="hardware:keyboard-arrow-left" on-tap="previous" on-focus="focus" on-blur="blur"></paper-icon-button>
-      <paper-icon-button class="arrow next" icon="hardware:keyboard-arrow-right" on-tap="next" on-focus="focus" on-blur="blur"></paper-icon-button>
+      <paper-icon-button class="arrow previous" icon="hardware:keyboard-arrow-left" on-tap="previous" on-focus="focus" on-blur="blur" aria-label="Previous slide"></paper-icon-button>
+      <paper-icon-button class="arrow next" icon="hardware:keyboard-arrow-right" on-tap="next" on-focus="focus" on-blur="blur" aria-label="Next slide"></paper-icon-button>
     </template>
     
     <template is="dom-if" if={{!noBullets}}>
       <paper-radio-group class="bullets" selected="{{selected}}">
         <template is="dom-repeat" items={{bullets}} as=bullet index-as=index>
-          <paper-radio-button class="bullet" name="{{bullet}}" on-focus="focus" on-blur="blur"></paper-radio-button>
+          <paper-radio-button class="bullet" name="{{bullet}}" on-focus="focus" on-blur="blur" aria-label$="Slide {{bullet}}"></paper-radio-button>
         </template>
       </paper-radio-group>
     </template>
